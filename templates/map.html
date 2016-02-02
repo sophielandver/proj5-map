@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Map</title>
+    <link rel="stylesheet" type="text/css" href="static/css/map.css"
+   media="screen"/> 
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" /> 
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+    
+    <script src="http://www.mapquestapi.com/sdk/leaflet/v2.s/mq-map.js?key=isTIUurQJB8YzFk22HylnmiS9CxUqyNN"></script>
+    <script src="http://www.mapquestapi.com/sdk/leaflet/v2.s/mq-geocoding.js?key=isTIUurQJB8YzFk22HylnmiS9CxUqyNN"></script>
+
+</head>
+
+<body>
+<div id="map" style='width:1100px; height:530px;'>
+
+<script>
+//now start javascript code
+window.onload = function() {
+
+//initialize map to Eugene
+var map = L.map('map', {
+  layers: MQ.mapLayer(),
+  center: [44.0519, -123.0867],
+  zoom: 13 })
+
+
+// load a tile layer
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    maxZoom: 18,
+    id: 'slandver.p1jf9ak6',
+    accessToken: 'pk.eyJ1Ijoic2xhbmR2ZXIiLCJhIjoiY2lrM2ZsNHlpMDNob3R1bTA4NDdtZmJkNyJ9.q1Q3J1BlRPAbU2pLeqE5Bg'
+}).addTo(map);
+
+//place points of interest configured markers
+var POI = {{session.POI|safe}} //POI is a dictionary 
+for (point in POI) //loops through the keys 
+{
+    lat_lon = POI[point]
+    lat = lat_lon[0]
+    lon = lat_lon[1]
+    var marker = L.marker([lat, lon]).addTo(map);
+    marker.bindPopup(point).openPopup();
+}
+
+
+//when the user clicks on the map create a marker showing the address 
+function onMapClick(e) {
+    popup = L.popup(),
+        geocode,
+        map;
+    //make a marker at the location when the user clicks or taps on map
+    var marker = L.marker(e.latlng).addTo(map);
+    //now make it so that when the user opens the pin it shows the address
+    marker.bindPopup(popup).openPopup();
+    geocode.reverse(e.latlng);
+      
+}
+map.on('click', onMapClick);
+
+geocode = MQ.geocode().on('success', function(e) {
+popup.setContent(geocode.describeLocation(e.result.best));
+});
+
+}
+</script>
+
+</div>
+
+
+</body> </html>
